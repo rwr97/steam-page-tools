@@ -151,8 +151,8 @@ The Chrome and Firefox packages are built from the same readable modular sources
 For contributors:
 
 ```text
-npm ci --ignore-scripts
-npm run check
+npm.cmd ci --ignore-scripts
+npm.cmd run check
 ```
 
 Node.js 24 or later is required. `npm run check` lints the source, validates manifests and packaged contents, builds both browser archives twice, compares them byte-for-byte, and performs a final validation pass.
