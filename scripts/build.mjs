@@ -19,13 +19,17 @@ import { deflateRawSync } from 'node:zlib';
 
 const repoRoot = fileURLToPath(new URL('../', import.meta.url));
 const distRoot = resolve(repoRoot, 'dist');
+const packageInfo = JSON.parse(
+    await readFile(resolve(repoRoot, 'package.json'), 'utf8')
+);
+const packageVersion = packageInfo.version;
 const distributions = {
     chrome: {
         directory: resolve(distRoot, 'chrome'),
         manifest: resolve(repoRoot, 'manifests/chrome.json'),
         archive: resolve(
             distRoot,
-            'steam-page-tools-chrome-v1.4.3.zip'
+            `steam-page-tools-chrome-v${packageVersion}.zip`
         ),
     },
     firefox: {
@@ -33,7 +37,7 @@ const distributions = {
         manifest: resolve(repoRoot, 'manifests/firefox.json'),
         archive: resolve(
             distRoot,
-            'steam-page-tools-firefox-v1.4.3.zip'
+            `steam-page-tools-firefox-v${packageVersion}.zip`
         ),
     },
 };

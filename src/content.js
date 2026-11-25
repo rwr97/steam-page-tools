@@ -72,8 +72,31 @@
         });
     }
 
-    function buildSteamSetsProfileButton(profileUrl) {
+    function buildSteamSetsProfileButton(profileUrl, isSteamDeckTheme) {
         const promo = document.createElement('a');
+        const accent = isSteamDeckTheme
+            ? {
+                border: 'rgba(29,10,25,.1)',
+                iconStart: '#ffb7e9',
+                iconEnd: '#f34db4',
+                eyebrow: '#ffc5eb',
+                sets: '#ff72c5',
+                background: 'rgba(29,10,25,.1)',
+                hoverBackground: 'rgba(175,52,149,.21)',
+                shadow: '0 0 2px 0 #fff,inset 0 0 2px #fff,0 0 3px 2px #f13292,inset 0 0 10px 1px #f13292,0 0 3px #f13292,inset 0 0 4px #f13292',
+                hoverShadow: '0 0 2px 0 #fff,inset 0 0 2px #fff,0 0 3px 2px #f13292,inset 0 0 10px 1px #f13292,0 0 3px #f13292,inset 0 0 4px #f13292',
+            }
+            : {
+                border: 'rgba(178,99,236,.42)',
+                iconStart: '#7652C9',
+                iconEnd: '#B263EC',
+                eyebrow: '#9da4ad',
+                sets: '#a75ce5',
+                background: 'rgba(13,12,19,.72)',
+                hoverBackground: 'rgba(48,38,68,.92)',
+                shadow: '',
+                hoverShadow: '0 0 0 1px rgba(118,82,201,.18)',
+            };
 
         promo.id = 'spt-steamsets-profile';
         promo.href = profileUrl;
@@ -85,8 +108,11 @@
             'aria-label',
             'View this Steam user on SteamSets (opens in a new tab)'
         );
+        if (isSteamDeckTheme) {
+            promo.dataset.theme = 'steam-deck';
+        }
         promo.style.cssText =
-            'display:inline-flex; align-items:center; align-self:center; gap:5px; width:auto; height:32px; box-sizing:border-box; padding:4px 7px 4px 5px; border:1px solid rgba(178,99,236,.42); border-radius:3px; background:rgba(13,12,19,.72); color:#fff; text-decoration:none; font-family:"Motiva Sans",Arial,sans-serif; flex:0 0 auto; transition:background-color .15s,border-color .15s,box-shadow .15s;';
+            `display:inline-flex; align-items:center; justify-content:${isSteamDeckTheme ? 'center' : 'flex-start'}; align-self:center; gap:${isSteamDeckTheme ? '3px' : '5px'}; width:auto; height:auto; box-sizing:border-box; padding:${isSteamDeckTheme ? '1px 2px' : '4px 7px 4px 5px'}; border:${isSteamDeckTheme ? '0' : '1px'} solid ${accent.border}; border-radius:3px; background:${accent.background}; color:${isSteamDeckTheme ? 'lightgray' : '#fff'}; text-decoration:none; font-family:"Motiva Sans",Arial,sans-serif; font-size:${isSteamDeckTheme ? '11px' : 'inherit'}; line-height:normal; flex:0 0 auto; box-shadow:${accent.shadow}; transition:all .1s ease-in-out;`;
 
         // Match the self-contained badge-search mark without fetching a
         // SteamSets image or other remote runtime asset.
@@ -94,15 +120,15 @@
 
         icon.setAttribute('aria-hidden', 'true');
         icon.style.cssText =
-            'display:flex; width:21px; height:21px; flex:0 0 21px;';
+            `display:flex; width:${isSteamDeckTheme ? '16px' : '21px'}; height:${isSteamDeckTheme ? '16px' : '21px'}; flex:0 0 ${isSteamDeckTheme ? '16px' : '21px'};${isSteamDeckTheme ? ' filter:drop-shadow(0 0 3px rgba(255,109,199,.72));' : ''}`;
         icon.innerHTML = `
             <svg viewBox="0 0 134 130" fill="none" style="display:block;width:100%;height:100%;" xmlns="http://www.w3.org/2000/svg">
                 <path d="M117.646 45.2406L133.817 107.179C134.569 110.018 132.939 112.341 130.181 112.341H65.4969C63.8671 112.341 63.7417 113.373 65.2462 114.535L66.1238 115.18C69.3835 117.89 69.0074 118.793 65.2462 117.245L33.4042 104.34C30.0191 102.92 30.0191 101.888 33.2789 101.888H72.3925C77.9089 101.888 81.1687 97.2418 79.7896 91.5636L67.7536 45.1115C67.0014 42.2724 68.6313 39.9495 71.3895 39.9495H111.506C114.136 40.0785 117.02 42.4014 117.646 45.2406Z" fill="url(#spt-steamsets-profile-gradient)"/>
                 <path d="M16.3536 85.7563L.183 23.821C-.569 20.982 1.061 18.659 3.819 18.659H68.506C70.136 18.659 70.261 17.627 68.757 16.465L67.879 15.82C64.62 13.11 64.996 12.207 68.757 13.755L100.599 26.66C103.984 28.08 103.984 29.112 100.724 29.112H61.736C56.22 29.112 52.96 33.758 54.339 39.436L66.375 85.889C67.127 88.728 65.497 91.051 62.739 91.051H22.622C19.864 90.918 16.981 88.595 16.354 85.756Z" fill="url(#spt-steamsets-profile-gradient)"/>
                 <defs>
                     <linearGradient id="spt-steamsets-profile-gradient" x1="0" y1="18.441" x2="133.051" y2="112.649" gradientUnits="userSpaceOnUse">
-                        <stop stop-color="#7652C9"/>
-                        <stop offset="1" stop-color="#B263EC"/>
+                        <stop stop-color="${accent.iconStart}"/>
+                        <stop offset="1" stop-color="${accent.iconEnd}"/>
                     </linearGradient>
                 </defs>
             </svg>
@@ -117,18 +143,18 @@
 
         eyebrow.textContent = 'VIEW ON';
         eyebrow.style.cssText =
-            'margin-bottom:1px; color:#9da4ad; font-size:6px; font-weight:600; line-height:6px; letter-spacing:.5px;';
+            `margin-bottom:1px; color:${accent.eyebrow}; font-size:6px; font-weight:600; line-height:6px; letter-spacing:.5px;`;
 
         const wordmark = document.createElement('span');
 
         wordmark.style.cssText =
-            'color:#fff; font-size:11px; font-weight:700; line-height:11px; letter-spacing:-.2px;';
+            `color:#fff; font-size:${isSteamDeckTheme ? '10px' : '11px'}; font-weight:700; line-height:${isSteamDeckTheme ? '10px' : '11px'}; letter-spacing:-.2px;`;
         wordmark.appendChild(document.createTextNode('Steam'));
 
         const sets = document.createElement('span');
 
         sets.textContent = 'Sets';
-        sets.style.color = '#a75ce5';
+        sets.style.color = accent.sets;
         wordmark.appendChild(sets);
 
         copy.appendChild(eyebrow);
@@ -138,14 +164,14 @@
 
         function setHighlighted(isHighlighted) {
             promo.style.background = isHighlighted
-                ? 'rgba(48,38,68,.92)'
-                : 'rgba(13,12,19,.72)';
+                ? accent.hoverBackground
+                : accent.background;
             promo.style.borderColor = isHighlighted
-                ? 'rgba(178,99,236,.8)'
-                : 'rgba(178,99,236,.42)';
+                ? (isSteamDeckTheme ? '#ffd0ef' : 'rgba(178,99,236,.8)')
+                : accent.border;
             promo.style.boxShadow = isHighlighted
-                ? '0 0 0 1px rgba(118,82,201,.18)'
-                : '';
+                ? accent.hoverShadow
+                : accent.shadow;
         }
 
         promo.addEventListener('mouseenter', () => setHighlighted(true));
@@ -218,7 +244,22 @@
                 `/account/${steamId}`,
                 STEAMSETS_PROFILE_ORIGIN
             );
-            const button = buildSteamSetsProfileButton(profileUrl);
+            // Steam adds this class while a Deck owner's special profile is
+            // active. Match its neon-pink frame without changing other themes.
+            const button = buildSteamSetsProfileButton(
+                profileUrl,
+                document.body?.classList.contains('SteamDeckTheme') === true
+            );
+            const deckAction = actions.querySelector(
+                '#profile_action_dropdown_link'
+            );
+
+            if (button.dataset.theme === 'steam-deck' && deckAction) {
+                const actionRect = deckAction.getBoundingClientRect();
+
+                button.style.width = `${actionRect.width}px`;
+                button.style.height = `${actionRect.height}px`;
+            }
             const popup = actions.querySelector('.popup_block');
 
             actions.insertBefore(button, popup);

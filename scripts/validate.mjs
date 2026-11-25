@@ -16,6 +16,10 @@ import { fileURLToPath } from 'node:url';
 import { inflateRawSync } from 'node:zlib';
 
 const repoRoot = fileURLToPath(new URL('../', import.meta.url));
+const packageInfo = JSON.parse(
+    await readFile(resolve(repoRoot, 'package.json'), 'utf8')
+);
+const packageVersion = packageInfo.version;
 const manifestDescription =
     'Unofficial Steam profile, badge, friends, inventory valuation, ' +
     'and bulk Store tools.';
@@ -171,7 +175,7 @@ async function readJson(relativePath) {
 function validateCommonManifest(manifest) {
     assert.equal(manifest.manifest_version, 3);
     assert.equal(manifest.name, 'Steam Page Tools');
-    assert.equal(manifest.version, '1.4.3');
+    assert.equal(manifest.version, packageVersion);
     assert.equal(manifest.description, manifestDescription);
     assert.equal(
         [...manifest.description].length <= 132,
@@ -790,7 +794,7 @@ async function validateDistribution(browser) {
     const directory = resolve(repoRoot, `dist/${browser}`);
     const archive = resolve(
         repoRoot,
-        `dist/steam-page-tools-${browser}-v1.4.3.zip`
+        `dist/steam-page-tools-${browser}-v${packageVersion}.zip`
     );
     const manifestSource = resolve(repoRoot, `manifests/${browser}.json`);
 
@@ -845,11 +849,11 @@ async function validateBuildOutputsWhenPresent() {
         resolve(repoRoot, 'dist/firefox'),
         resolve(
             repoRoot,
-            'dist/steam-page-tools-chrome-v1.4.3.zip'
+            `dist/steam-page-tools-chrome-v${packageVersion}.zip`
         ),
         resolve(
             repoRoot,
-            'dist/steam-page-tools-firefox-v1.4.3.zip'
+            `dist/steam-page-tools-firefox-v${packageVersion}.zip`
         ),
     ];
     const present = await Promise.all(expected.map(exists));

@@ -2,7 +2,12 @@
 
 All notable changes to the browser-extension edition are documented here.
 
-## Unreleased
+## 1.4.4 - 2026-11-25
+
+### Changed
+
+- Give the SteamSets profile shortcut a Steam Deck Special Profile-aware neon
+  frame, matching action-button dimensions, and hover effect.
 
 ## 1.4.3 - 2026-11-07
 

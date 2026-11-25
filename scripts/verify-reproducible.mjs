@@ -7,14 +7,18 @@ import { fileURLToPath } from 'node:url';
 
 const repoRoot = fileURLToPath(new URL('../', import.meta.url));
 const buildScript = resolve(repoRoot, 'scripts/build.mjs');
+const packageInfo = JSON.parse(
+    await readFile(resolve(repoRoot, 'package.json'), 'utf8')
+);
+const packageVersion = packageInfo.version;
 const archives = [
     resolve(
         repoRoot,
-        'dist/steam-page-tools-chrome-v1.4.3.zip'
+        `dist/steam-page-tools-chrome-v${packageVersion}.zip`
     ),
     resolve(
         repoRoot,
-        'dist/steam-page-tools-firefox-v1.4.3.zip'
+        `dist/steam-page-tools-firefox-v${packageVersion}.zip`
     ),
 ];
 
