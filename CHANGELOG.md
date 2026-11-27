@@ -2,6 +2,19 @@
 
 All notable changes to the browser-extension edition are documented here.
 
+## 1.4.6 - 2026-11-27
+
+### Fixed
+
+- Updated market feature for new Steam UI
+
+## 1.4.5 - 2026-11-26
+
+### Changed
+
+- Resize the SteamSets profile button to a compact fixed width while matching
+  the profile action button's height.
+
 ## 1.4.4 - 2026-11-25
 
 ### Changed

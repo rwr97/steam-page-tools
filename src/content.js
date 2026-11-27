@@ -112,7 +112,7 @@
             promo.dataset.theme = 'steam-deck';
         }
         promo.style.cssText =
-            `display:inline-flex; align-items:center; justify-content:${isSteamDeckTheme ? 'center' : 'flex-start'}; align-self:center; gap:${isSteamDeckTheme ? '3px' : '5px'}; width:auto; height:auto; box-sizing:border-box; padding:${isSteamDeckTheme ? '1px 2px' : '4px 7px 4px 5px'}; border:${isSteamDeckTheme ? '0' : '1px'} solid ${accent.border}; border-radius:3px; background:${accent.background}; color:${isSteamDeckTheme ? 'lightgray' : '#fff'}; text-decoration:none; font-family:"Motiva Sans",Arial,sans-serif; font-size:${isSteamDeckTheme ? '11px' : 'inherit'}; line-height:normal; flex:0 0 auto; box-shadow:${accent.shadow}; transition:all .1s ease-in-out;`;
+            `display:inline-flex; align-items:center; justify-content:center; align-self:center; gap:3px; width:auto; height:auto; box-sizing:border-box; padding:1px 2px; border:${isSteamDeckTheme ? '0' : '1px'} solid ${accent.border}; border-radius:3px; background:${accent.background}; color:${isSteamDeckTheme ? 'lightgray' : '#fff'}; text-decoration:none; font-family:"Motiva Sans",Arial,sans-serif; font-size:11px; line-height:normal; flex:0 0 auto; box-shadow:${accent.shadow}; transition:all .1s ease-in-out;`;
 
         // Match the self-contained badge-search mark without fetching a
         // SteamSets image or other remote runtime asset.
@@ -120,7 +120,7 @@
 
         icon.setAttribute('aria-hidden', 'true');
         icon.style.cssText =
-            `display:flex; width:${isSteamDeckTheme ? '16px' : '21px'}; height:${isSteamDeckTheme ? '16px' : '21px'}; flex:0 0 ${isSteamDeckTheme ? '16px' : '21px'};${isSteamDeckTheme ? ' filter:drop-shadow(0 0 3px rgba(255,109,199,.72));' : ''}`;
+            `display:flex; width:16px; height:16px; flex:0 0 16px;${isSteamDeckTheme ? ' filter:drop-shadow(0 0 3px rgba(255,109,199,.72));' : ''}`;
         icon.innerHTML = `
             <svg viewBox="0 0 134 130" fill="none" style="display:block;width:100%;height:100%;" xmlns="http://www.w3.org/2000/svg">
                 <path d="M117.646 45.2406L133.817 107.179C134.569 110.018 132.939 112.341 130.181 112.341H65.4969C63.8671 112.341 63.7417 113.373 65.2462 114.535L66.1238 115.18C69.3835 117.89 69.0074 118.793 65.2462 117.245L33.4042 104.34C30.0191 102.92 30.0191 101.888 33.2789 101.888H72.3925C77.9089 101.888 81.1687 97.2418 79.7896 91.5636L67.7536 45.1115C67.0014 42.2724 68.6313 39.9495 71.3895 39.9495H111.506C114.136 40.0785 117.02 42.4014 117.646 45.2406Z" fill="url(#spt-steamsets-profile-gradient)"/>
@@ -148,7 +148,7 @@
         const wordmark = document.createElement('span');
 
         wordmark.style.cssText =
-            `color:#fff; font-size:${isSteamDeckTheme ? '10px' : '11px'}; font-weight:700; line-height:${isSteamDeckTheme ? '10px' : '11px'}; letter-spacing:-.2px;`;
+            'color:#fff; font-size:10px; font-weight:700; line-height:10px; letter-spacing:-.2px;';
         wordmark.appendChild(document.createTextNode('Steam'));
 
         const sets = document.createElement('span');
@@ -250,14 +250,18 @@
                 profileUrl,
                 document.body?.classList.contains('SteamDeckTheme') === true
             );
-            const deckAction = actions.querySelector(
+            const profileAction = actions.querySelector(
+                'a.btn_profile_action[href*="/edit"]'
+            ) || actions.querySelector(
+                '.btn_profile_action:not(#profile_action_dropdown_link)'
+            ) || actions.querySelector(
                 '#profile_action_dropdown_link'
             );
 
-            if (button.dataset.theme === 'steam-deck' && deckAction) {
-                const actionRect = deckAction.getBoundingClientRect();
+            if (profileAction) {
+                const actionRect = profileAction.getBoundingClientRect();
 
-                button.style.width = `${actionRect.width}px`;
+                button.style.width = '84px';
                 button.style.height = `${actionRect.height}px`;
             }
             const popup = actions.querySelector('.popup_block');
@@ -5647,7 +5651,7 @@
 
     // Market page active listings tools: bulk removal and price editing (cancel & relist).
     function initMarketTools() {
-        if (!/^\/market\/?$/i.test(location.pathname)) {
+        if (!/^\/market(?:\/(?:activelistings|mylistings))?\/?$/i.test(location.pathname)) {
             return;
         }
 
@@ -5779,6 +5783,55 @@
             return Number.isSafeInteger(minor) && minor > 0 ? minor : null;
         }
 
+        function readReactActiveListing(button) {
+            const fiberKey = Object.keys(button).find((key) => (
+                key.startsWith('__reactFiber$')
+            ));
+            let fiber = fiberKey ? button[fiberKey] : null;
+
+            while (fiber) {
+                const activeListing = fiber.memoizedProps?.activeListing;
+                const listingId = String(
+                    activeListing?.listing?.listingid || ''
+                );
+
+                if (/^\d+$/.test(listingId)) {
+                    return activeListing;
+                }
+
+                fiber = fiber.return;
+            }
+
+            return null;
+        }
+
+        function findReactListingRow(button) {
+            for (
+                let candidate = button.parentElement;
+                candidate && candidate !== document.body;
+                candidate = candidate.parentElement
+            ) {
+                const modifyButtons = [
+                    ...candidate.querySelectorAll('button'),
+                ].filter((element) => (
+                    element.textContent.trim().toLowerCase() === 'modify'
+                ));
+
+                if (modifyButtons.length > 1) {
+                    return null;
+                }
+
+                if (
+                    modifyButtons.length === 1 &&
+                    candidate.children.length >= 3
+                ) {
+                    return candidate;
+                }
+            }
+
+            return null;
+        }
+
         function minorToInput(minor) {
             if (!Number.isSafeInteger(minor) || minor <= 0) {
                 return '';
@@ -5788,9 +5841,71 @@
             return `${whole}.${fraction}`;
         }
 
-        function extractListingData(row) {
+        function extractListingData(row, activeListing = null) {
             if (row._sptListingData) {
                 return row._sptListingData;
+            }
+
+            const activeListingRecord = activeListing?.listing;
+            const activeDescription = activeListing?.description || {};
+
+            if (activeListingRecord) {
+                const asset = activeListingRecord.asset || {};
+                const name = String(
+                    activeDescription.market_name ||
+                    activeDescription.name ||
+                    `Listing ${activeListingRecord.listingid}`
+                );
+                const priceText = [...row.children]
+                    .map((cell) => cell.textContent.trim())
+                    .find((text) => (
+                        /(?:[$€£¥₹₩₽₺₫₴₪฿₱]\s*\d|\d[\d.,]*\s*(?:USD|EUR|GBP|CAD|AUD|JPY|CNY|INR|KRW)\b)/i
+                            .test(text)
+                    )) || '';
+                const image = row.querySelector('img');
+                const iconHash = String(activeDescription.icon_url || '');
+                const iconUrl = /^[A-Za-z0-9_-]+$/.test(iconHash)
+                    ? `${STEAM_ICON_ORIGIN}${iconHash}/64fx64f`
+                    : image?.src || '';
+                const listingAsset = {
+                    ...asset,
+                    classid: activeDescription.classid || asset.classid || '',
+                    icon_url: iconHash,
+                    instanceid:
+                        activeDescription.instanceid ||
+                        asset.instanceid ||
+                        '0',
+                    market_hash_name:
+                        activeDescription.market_hash_name || name,
+                    name: activeDescription.name || name,
+                };
+                const data = {
+                    appId: String(asset.appid || activeDescription.appid || ''),
+                    asset: listingAsset,
+                    assetId: String(asset.id || ''),
+                    classId: String(
+                        activeDescription.classid || asset.classid || ''
+                    ),
+                    contextId: String(asset.contextid || ''),
+                    currentPriceMinor: parseInputToMinor(priceText) || 0,
+                    gameName: '',
+                    iconUrl,
+                    instanceId: String(
+                        activeDescription.instanceid ||
+                        asset.instanceid ||
+                        '0'
+                    ),
+                    listingId: String(activeListingRecord.listingid),
+                    marketHashName: String(
+                        activeDescription.market_hash_name || name
+                    ),
+                    name,
+                    priceText,
+                    row,
+                };
+
+                row._sptListingData = data;
+                return data;
             }
 
             const removeLink = row.querySelector(
@@ -5807,9 +5922,16 @@
             if (match && match[2]) {
                 listingId = match[2];
             } else {
-                const idMatch = row.id?.match(/^(?:mylisting|listing|myholdlisting)?_?(\d+)$/i) || row.id?.match(/\d+/);
-                if (idMatch) {
-                    listingId = idMatch[1] || idMatch[0];
+                const dataListingId = row.dataset?.listingid ||
+                    row.dataset?.listingId ||
+                    row.getAttribute('data-listing-id');
+                const idMatch = String(row.id || '').match(
+                    /^(?:mylisting|listing|myholdlisting)?_?(\d+)$/i
+                ) || linkStr.match(/\/market\/removelisting\/(\d+)/i);
+                if (/^\d+$/.test(String(dataListingId || ''))) {
+                    listingId = String(dataListingId);
+                } else if (idMatch) {
+                    listingId = idMatch[1];
                 }
             }
 
@@ -5817,7 +5939,7 @@
                 return null;
             }
 
-            if (!row.id) {
+            if (!row.id && !activeListing) {
                 row.id = `mylisting_${listingId}`;
             }
 
@@ -5895,13 +6017,11 @@
 
                 const rowRect = listing.row.getBoundingClientRect();
                 const imageRect = imageBlock.getBoundingClientRect();
-                const checkboxSize = 16;
 
                 container.style.left =
-                    `${imageRect.left - rowRect.left - checkboxSize - 4}px`;
+                    `${imageRect.left - rowRect.left + 4}px`;
                 container.style.top =
-                    `${imageRect.top - rowRect.top +
-                        (imageRect.height - checkboxSize) / 2}px`;
+                    `${imageRect.top - rowRect.top + 4}px`;
             }
 
             listing.row.classList.add('spt-market-checkbox-positioning');
@@ -5959,7 +6079,9 @@
                 '#tabContentsMyListings .market_listing_row, ' +
                 '.my_listing_section .market_listing_row, ' +
                 '#tabContentsMyActiveMarketListingsRows .market_listing_row, ' +
-                '#tabContentsMyActiveMarketListingsTable .market_listing_row'
+                '#tabContentsMyActiveMarketListingsTable .market_listing_row, ' +
+                '#tabContentsMyActiveMarketListings .market_listing_row, ' +
+                '[id^="mylisting_"], [id^="myholdlisting_"]'
             );
             const list = [];
             const seenIds = new Set();
@@ -5978,6 +6100,30 @@
                     list.push(data);
                 }
             }
+
+            const modifyButtons = [...document.querySelectorAll('button')]
+                .filter((button) => (
+                    button.textContent.trim().toLowerCase() === 'modify'
+                ));
+
+            for (const button of modifyButtons) {
+                const activeListing = readReactActiveListing(button);
+
+                if (!activeListing) {
+                    continue;
+                }
+
+                const row = findReactListingRow(button);
+                const data = row
+                    ? extractListingData(row, activeListing)
+                    : null;
+
+                if (data && !seenIds.has(data.listingId)) {
+                    seenIds.add(data.listingId);
+                    list.push(data);
+                }
+            }
+
             return list;
         }
 
@@ -6008,7 +6154,9 @@
                 document.querySelector('#tabContentsMyListings .my_listing_section') ||
                 document.querySelector('#tabContentsMyActiveMarketListingsTable') ||
                 document.querySelector('#tabContentsMyActiveMarketListingsRows') ||
-                document.querySelector('#tabContentsMyListings');
+                document.querySelector('#tabContentsMyActiveMarketListings') ||
+                document.querySelector('#tabContentsMyListings') ||
+                getVisibleListings()[0]?.row?.parentElement;
 
             if (!targetSection) {
                 return null;
@@ -7000,22 +7148,27 @@
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    width: 16px;
-                    height: 16px;
+                    width: 20px;
+                    height: 20px;
                     padding: 0;
-                    z-index: 1;
+                    border: 1px solid rgba(198, 212, 223, 0.55);
+                    border-radius: 3px;
+                    background: rgba(15, 20, 27, 0.9);
+                    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+                    z-index: 2;
                 }
 
-                .market_listing_row.spt-market-checkbox-positioning {
+                .spt-market-checkbox-positioning {
                     position: relative;
                     overflow: visible !important;
                 }
 
                 .spt-market-row-checkbox {
-                    width: 16px;
-                    height: 16px;
+                    width: 14px;
+                    height: 14px;
                     cursor: pointer;
                     margin: 0;
+                    accent-color: #a4d007;
                 }
 
                 .spt-market-modal-overlay {
@@ -7294,6 +7447,7 @@
                 document.getElementById('tabContentsMyListings') ||
                 document.getElementById('tabContentsMyActiveMarketListingsRows') ||
                 document.getElementById('tabContentsMyActiveMarketListingsTable') ||
+                document.getElementById('tabContentsMyActiveMarketListings') ||
                 document.querySelector('.my_listing_section') ||
                 document.body;
 
