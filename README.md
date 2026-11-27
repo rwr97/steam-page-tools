@@ -80,8 +80,7 @@ Bulk selling and conversion to Gems are available only for the signed-in user's 
 
 ### Steam Community Market
 
-<img src="https://i.ibb.co/M5kCQgWQ/market.png" width="750" alt="Market2">
-<img src="https://i.ibb.co/Y7F9cf0V/market2.png" width="750" alt="Market">
+<img width="750" alt="image" src="https://github.com/user-attachments/assets/3709c9d0-11ff-405b-9d8a-3cc284d859c7" />
 
 On the Steam Community Market home page (`https://steamcommunity.com/market/`):
 
